@@ -8,7 +8,7 @@ import org.openqa.selenium.WebDriver;
 
 public class TestingClass {
     protected static WebDriver driver;
-    private Logger logger = LogManager.getLogger(TestingClass.class);
+    public static Logger logger = LogManager.getLogger(TestingClass.class);
 
    /* @Test
     public void log() {
@@ -22,8 +22,7 @@ public class TestingClass {
     @Before
     public void setUp() {
         String browser = System.getProperty("browser") == null ? null : System.getProperty("browser").toLowerCase();
-        // TODO: с options так и не понял, что надо было делать
-        WebDriver.Options options = null;
+        String options = System.getProperty("options") == null ? null : System.getProperty("options").toLowerCase();
         if (!(browser == null) & !(options == null)) {
             driver = WebDriverFactory.create(browser, options);
             logger.info("Драйвер " + browser + " поднят");

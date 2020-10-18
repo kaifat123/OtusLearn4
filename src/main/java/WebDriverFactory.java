@@ -1,8 +1,8 @@
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.PageLoadStrategy;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.edge.EdgeDriver;
@@ -13,6 +13,10 @@ import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.ie.InternetExplorerOptions;
 
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import static org.openqa.selenium.remote.BrowserType.*;
 
 public class WebDriverFactory {
@@ -21,15 +25,16 @@ public class WebDriverFactory {
         return Factory.create(webDriverName);
     }
 
-    public static WebDriver create(String webDriverName, WebDriver.Options options) {
-        return Factory.create(webDriverName.toLowerCase(), options);
+    public static WebDriver create(String webDriverName, String options) {
+        ArrayList<String> listOptions= new ArrayList<>(Arrays.asList(options.split(";")));
+        return Factory.create(webDriverName.toLowerCase(), listOptions);
     }
 }
 
 interface Driver {
     WebDriver create();
 
-    WebDriver create(WebDriver.Options options);
+    WebDriver create(ArrayList<String> options);
 }
 
 class DriverChrome implements Driver {
@@ -40,9 +45,11 @@ class DriverChrome implements Driver {
     }
 
     @Override
-    public WebDriver create(WebDriver.Options options) {
+    public WebDriver create(ArrayList<String> listOptions) {
         WebDriverManager.chromedriver().setup();
-        return new ChromeDriver((ChromeOptions) options);
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments(listOptions);
+        return new ChromeDriver(options);
     }
 }
 
@@ -54,9 +61,11 @@ class DriverFox implements Driver {
     }
 
     @Override
-    public WebDriver create(WebDriver.Options options) {
+    public WebDriver create(ArrayList<String> listOptions) {
         WebDriverManager.firefoxdriver().setup();
-        return new FirefoxDriver((FirefoxOptions) options);
+        FirefoxOptions options = new FirefoxOptions();
+        options.addArguments(listOptions);
+        return new FirefoxDriver(options);
     }
 }
 
@@ -69,9 +78,10 @@ class DriverIE implements Driver {
     }
 
     @Override
-    public WebDriver create(WebDriver.Options options) {
+    public WebDriver create(ArrayList<String> listOptions) {
         WebDriverManager.iedriver().setup();
-        return new InternetExplorerDriver((InternetExplorerOptions) options);
+        System.out.println("У браузера IE отсутствуют опции запуска");
+        return new InternetExplorerDriver();
     }
 }
 
@@ -83,9 +93,10 @@ class DriverEDGE implements Driver {
     }
 
     @Override
-    public WebDriver create(WebDriver.Options options) {
+    public WebDriver create(ArrayList<String> listOptions) {
         WebDriverManager.edgedriver().setup();
-        return new EdgeDriver((EdgeOptions) options);
+        System.out.println("У браузера EDGE отсутствуют опции запуска");
+        return new EdgeDriver();
     }
 }
 
@@ -109,7 +120,7 @@ class Factory {
         }
     }
 
-    public static WebDriver create(String browser, WebDriver.Options options) {
+    public static WebDriver create(String browser, ArrayList<String> options) {
         switch (browser) {
             case (CHROME):
                 return new DriverChrome().create(options);
